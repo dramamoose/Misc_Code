@@ -1,0 +1,40 @@
+"""Simple function to convert XY values provided by Phillips Hue light sinto rgb values usable by other light sources"""
+
+def xy_to_rgb(COLOR_LITTLE_X, COLOR_LITTLE_Y, BRIGHTNESS):
+    #Calculate XYZ values
+    COLOR_LITTLE_Z = 1 - COLOR_LITTLE_X - COLOR_LITTLE_Y
+    COLOR_Y = BRIGHTNESS
+    COLOR_X = (COLOR_Y / COLOR_LITTLE_Y) * COLOR_LITTLE_X
+    COLOR_Z = (COLOR_Y / COLOR_LITTLE_Y) * COLOR_LITTLE_Z
+    #Covert to RGB using Wide RGB D65 conversion
+    COLOR_R = COLOR_X * 1.656492 - COLOR_Y * 0.354851 - COLOR_Z * 0.255038
+    COLOR_G = COLOR_X * -0.707196 + COLOR_Y * 1.655397 + COLOR_Z * 0.036152
+    COLOR_B = COLOR_X * 0.051713 - COLOR_Y * 0.121364 + COLOR_Z * 0.036152
+    #Gamma Correction
+    if COLOR_R <= 0.0031308:
+        COLOR_R = 12.92 * COLOR_R
+    else:
+        COLOR_R = 1.055 * pow(COLOR_R, 1/2.4) - 0.055
+    if COLOR_G <= 0.0031308:
+        COLOR_G = 12.92 * COLOR_G
+    else:
+        COLOR_G = 1.055 * pow(COLOR_G, 1/2.4) - 0.055
+    if COLOR_R <= 0.0031308:
+        COLOR_B = 12.92 * COLOR_B
+    else:
+        COLOR_B = 1.055 * pow(COLOR_B, 1/2.4) - 0.055
+    #Since we are not validating using the Hue color gamuts, we need to handle edge cases.
+    if COLOR_R < 0:
+        COLOR_R = 0
+    elif COLOR_R > 255:
+        COLOR_R = 255
+    if COLOR_G < 0:
+        COLOR_G = 0
+    elif COLOR_G > 255:
+        COLOR_G = 255
+    if COLOR_B < 0:
+        COLOR_B = 0
+    elif COLOR_B > 255:
+        COLOR_B = 255
+    
+    return COLOR_R, COLOR_G, COLOR_B
